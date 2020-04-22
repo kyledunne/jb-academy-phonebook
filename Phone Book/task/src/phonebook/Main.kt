@@ -16,7 +16,9 @@ fun main() {
 
     val millis = linearSearch(directory, names)
 
-    bubbleSortJumpSearch(directory, names, millis * 10)
+    bubbleSortJumpSearch(directory.clone(), names, millis * 10)
+
+    quickSortBinarySearch(directory, names)
 }
 
 fun linearSearch(directory: Array<PhoneBookEntry>, names: List<String>): Long {
@@ -24,6 +26,7 @@ fun linearSearch(directory: Array<PhoneBookEntry>, names: List<String>): Long {
     val numbers = Array(totalNames) { "" }
     var foundNames = 0
 
+    println("Start searching (linear search)...")
     val startTime = System.currentTimeMillis()
     for ((index, person) in names.withIndex()) {
         inner@for (entry in directory) {
@@ -127,6 +130,83 @@ fun breakBubbleSortToLinearSearch(directory: Array<PhoneBookEntry>, names: List<
     println("Found $foundNames / $totalNames entries. Time taken: $totalDuration")
     println("Sorting time: $sortDuration - STOPPED, moved to linear search")
     println("Searching time: $searchDuration")
+}
+
+fun quickSortBinarySearch(directory: Array<PhoneBookEntry>, names: List<String>) {
+    val directorySize = directory.size
+    val totalNames = names.size
+    val numbers = Array<String?>(totalNames) { "" }
+    var foundNames = 0
+    println("Start searching (quick sort + binary search)...")
+    val sortStartTime = System.currentTimeMillis()
+
+    val sortedDirectory = quicksort(directory.toList())
+
+    val sortEndTime = System.currentTimeMillis()
+    val searchStartTime = System.currentTimeMillis()
+
+    for ((index, person) in names.withIndex()) {
+        numbers[index] = binarySearch(sortedDirectory, person)
+        if (numbers[index] != null) foundNames++
+    }
+
+    val searchEndTime = System.currentTimeMillis()
+    val sortDuration = MinsSecsMillis(sortEndTime - sortStartTime)
+    val searchDuration = MinsSecsMillis(searchEndTime - searchStartTime)
+    val totalDuration = MinsSecsMillis(searchEndTime - sortStartTime)
+    println("Found $foundNames / $totalNames entries. Time taken: $totalDuration")
+    println("Sorting time: $sortDuration")
+    println("Searching time: $searchDuration")
+}
+
+fun <T: Comparable<T>> genericQuicksort(array: List<T>): List<T> {
+    if (array.size in 0..1) return array
+    val pivot = array[array.size - 1]
+    val lessThan = mutableListOf<T>()
+    val greaterThan = mutableListOf<T>()
+    for (element in 0..array.size - 2) {
+        if (array[element] < pivot) {
+            lessThan.add(array[element])
+        } else {
+            greaterThan.add(array[element])
+        }
+    }
+    return genericQuicksort(lessThan) + pivot + genericQuicksort(greaterThan)
+}
+
+fun quicksort(list: List<PhoneBookEntry>): List<PhoneBookEntry> {
+    if (list.size in 0..1) return list
+    val pivot = list[list.size - 1]
+    val lessThan = mutableListOf<PhoneBookEntry>()
+    val greaterThan = mutableListOf<PhoneBookEntry>()
+    var value: PhoneBookEntry
+    for (index in 0 until list.size - 1) {
+        value = list[index]
+        if (value < pivot) {
+            lessThan.add(value)
+        } else {
+            greaterThan.add(value)
+        }
+    }
+    return quicksort(lessThan) + pivot + quicksort(greaterThan)
+}
+
+/**
+ * @return phone number
+ */
+fun binarySearch(array: List<PhoneBookEntry>, name: String): String? {
+    if (array.isEmpty()) return null
+    if (array.size == 1) {
+        if (array[0].name == name) return array[0].number
+        return null
+    }
+    val midElement = array.size / 2
+    val comparison = name.compareTo(array[midElement].name)
+    if (comparison == 0) return array[midElement].number
+    if (comparison < 0) {
+        return binarySearch(array.subList(0, midElement), name)
+    }
+    return binarySearch(array.subList(midElement + 1, array.size), name)
 }
 
 class PhoneBookEntry(numberAndName: List<String>): Comparable<PhoneBookEntry> {
