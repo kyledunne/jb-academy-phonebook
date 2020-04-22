@@ -4,6 +4,8 @@ package phonebook
 
 import java.io.File
 import java.nio.file.Files
+import java.util.*
+import kotlin.collections.HashMap
 import kotlin.math.roundToInt
 import kotlin.math.sqrt
 
@@ -18,7 +20,9 @@ fun main() {
 
     bubbleSortJumpSearch(directory.clone(), names, millis * 10)
 
-    quickSortBinarySearch(directory, names)
+    quickSortBinarySearch(directory.clone(), names)
+
+    instantSearch(directory, names)
 }
 
 fun linearSearch(directory: Array<PhoneBookEntry>, names: List<String>): Long {
@@ -207,6 +211,38 @@ fun binarySearch(array: List<PhoneBookEntry>, name: String): String? {
         return binarySearch(array.subList(0, midElement), name)
     }
     return binarySearch(array.subList(midElement + 1, array.size), name)
+}
+
+fun instantSearch(directory: Array<PhoneBookEntry>, names: List<String>) {
+    val directorySize = directory.size
+    val totalNames = names.size
+    val numbers = Array<String?>(totalNames) { "" }
+    var foundNames = 0
+    println("Start searching (hash table)...")
+    val createStartTime = System.currentTimeMillis()
+
+    // TODO create hash table
+    // hash table with 10007 (prime) entries
+    val hashTable = HashMap<String, String>()
+    for (entry in directory) {
+        hashTable[entry.name] = entry.number
+    }
+
+    val createEndTime = System.currentTimeMillis()
+    val searchStartTime = System.currentTimeMillis()
+
+    for ((index, person) in names.withIndex()) {
+        numbers[index] = hashTable[person]
+        if (numbers[index] != null) foundNames++
+    }
+
+    val searchEndTime = System.currentTimeMillis()
+    val createDuration = MinsSecsMillis(createEndTime - createStartTime)
+    val searchDuration = MinsSecsMillis(searchEndTime - searchStartTime)
+    val totalDuration = MinsSecsMillis(searchEndTime - createStartTime)
+    println("Found $foundNames / $totalNames entries. Time taken: $totalDuration")
+    println("Creating time: $createDuration")
+    println("Searching time: $searchDuration")
 }
 
 class PhoneBookEntry(numberAndName: List<String>): Comparable<PhoneBookEntry> {
