@@ -60,6 +60,15 @@ files:
     \ \" + estimatedTime + \"ms in total.\");\n        }\n        \n        return\
     \ CheckResult.TRUE;\n    }\n}\n"
   learner_created: false
+- name: src/phonebook/stage1.kt
+  visible: true
+  learner_created: true
+- name: src/phonebook/stage2.kt
+  visible: true
+  learner_created: true
+- name: src/phonebook/stage3.kt
+  visible: true
+  learner_created: true
 feedback_link: https://hyperskill.org/projects/86/stages/476/implement
 status: Solved
 record: -1
